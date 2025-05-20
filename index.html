@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>IGC HK Dashboard</title>
+  <title>IGC HK Login Page</title>
   <style>
     body {
       background-color: #fdf6a6;
@@ -9,6 +9,7 @@
       text-align: center;
       padding: 20px;
     }
+    /* Container for logo + banner side by side */
     .header-images {
       display: inline-flex;
       align-items: center;
@@ -17,26 +18,25 @@
       gap: 20px;
     }
     img.logo, img.banner {
-      height: 120px;
-      width: auto;
+      height: 120px;    /* same height */
+      width: auto;      /* keep aspect ratio */
       vertical-align: middle;
     }
-    .dashboard-content {
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    form {
       background-color: white;
       padding: 20px;
       border-radius: 8px;
       display: inline-block;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      margin-top: 20px;
     }
-    #logout-btn {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #ff4444;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+    input, button {
+      margin: 8px 0;
+      padding: 10px;
+      width: 250px;
     }
   </style>
 </head>
@@ -47,23 +47,20 @@
     <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg" alt="IGC HK Banner" class="banner">
   </div>
 
-  <div class="dashboard-content">
-    <h1>Welcome to Your Dashboard</h1>
-    <p id="user-email"></p>
-    <p id="verification-status"></p>
-    
-    <!-- Your dashboard content goes here -->
-    
-    <button id="logout-btn">Logout</button>
-  </div>
+  <h1>IGC HK Login Page</h1>
+
+  <form id="login-form">
+    <input type="email" id="email" placeholder="Email" required><br>
+    <input type="password" id="password" placeholder="Password" required><br>
+    <button type="submit">Login</button>
+  </form>
+
+  <p id="error-message" style="color:red;"></p>
+  <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
-    import { 
-      getAuth, 
-      onAuthStateChanged,
-      signOut 
-    } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
@@ -78,33 +75,25 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // Check authentication state when page loads
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in
-        document.getElementById('user-email').textContent = `Email: ${user.email}`;
-        
-        if (user.emailVerified) {
-          document.getElementById('verification-status').textContent = "Email verified ✔️";
-          // User is verified, show dashboard content
-        } else {
-          // User is not verified, redirect to login
-          alert("Please verify your email before accessing the dashboard.");
-          window.location.href = "index.html";
-        }
-      } else {
-        // No user is signed in, redirect to login
-        window.location.href = "index.html";
-      }
-    });
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
 
-    // Logout button functionality
-    document.getElementById('logout-btn').addEventListener('click', () => {
-      signOut(auth).then(() => {
-        window.location.href = "index.html";
-      }).catch((error) => {
-        console.error("Logout error:", error);
-      });
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        if (!user.emailVerified) {
+          alert("Please verify your email before logging in.");
+          return;
+        }
+
+        alert("Login successful!");
+        window.location.href = "dashboard.html";
+      } catch (error) {
+        document.getElementById('error-message').textContent = "Error: " + error.message;
+      }
     });
   </script>
 </body>
