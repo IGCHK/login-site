@@ -1,105 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>User Dashboard - IGC HK</title>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
-      authDomain: "igchkwebsite.firebaseapp.com",
-      projectId: "igchkwebsite",
-      storageBucket: "igchkwebsite.appspot.com",
-      messagingSenderId: "575146782620",
-      appId: "1:575146782620:web:36853d54456714d5d6e259"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        alert("Please sign in first.");
-        window.location.href = "index.html";
-        return;
-      }
-
-      const verifyDoc = await getDoc(doc(db, "verifications", user.uid));
-      if (!verifyDoc.exists() || !verifyDoc.data().verified) {
-        alert("Please verify your email first.");
-        window.location.href = "verify.html";
-        return;
-      }
-
-      const fileDoc = await getDoc(doc(db, "userFiles", user.uid));
-      const fileList = document.getElementById("file-list");
-
-      if (fileDoc.exists()) {
-        const files = fileDoc.data().files;
-        if (files && files.length > 0) {
-          files.forEach(file => {
-            const li = document.createElement("li");
-            const a = document.createElement("a");
-            a.href = file.url;
-            a.target = "_blank";
-            a.textContent = file.name;
-            li.appendChild(a);
-            fileList.appendChild(li);
-          });
-        } else {
-          fileList.innerHTML = "<li>No files assigned to you yet.</li>";
-        }
-      } else {
-        fileList.innerHTML = "<li>No file access record found.</li>";
-      }
-    });
-  </script>
-
+  <title>Dashboard</title>
   <style>
     body {
       background-color: #fdf6a6;
       font-family: Arial, sans-serif;
       text-align: center;
+      padding: 20px;
     }
-
-    .header-images img {
-      height: 100px;
-      margin: 10px;
+    .header-images {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      gap: 20px;
     }
-
-    ul {
-      list-style: none;
-      padding: 0;
+    img.logo, img.banner {
+      height: 120px;
+      width: auto;
+      vertical-align: middle;
     }
-
-    li {
-      margin: 10px 0;
-    }
-
-    a {
-      font-size: 18px;
-      color: blue;
-      text-decoration: underline;
-    }
-
-    a:hover {
-      color: darkblue;
+    h1 {
+      color: #333;
     }
   </style>
 </head>
 <body>
+
   <div class="header-images">
-    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg">
-    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg">
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg" alt="IGC HK Logo" class="logo">
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg" alt="IGC HK Banner" class="banner">
   </div>
 
-  <h2>Welcome to Your Dashboard</h2>
-  <p>Your assigned files:</p>
-  <ul id="file-list">
-    <li>Loading files...</li>
-  </ul>
+  <h1>Welcome to IGC HK Dashboard</h1>
+  <p>This is where your protected content will go!</p>
+
 </body>
 </html>
