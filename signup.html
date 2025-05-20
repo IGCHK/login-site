@@ -16,7 +16,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
@@ -38,8 +38,11 @@
 
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        alert("Sign-up successful! Redirecting to dashboard...");
-        window.location.href = "dashboard.html";
+        const user = userCredential.user;
+
+        await sendEmailVerification(user);
+        alert("Signup successful! A verification email has been sent. Please verify your email before logging in.");
+        window.location.href = "index.html";
       } catch (error) {
         document.getElementById('error-message').textContent = "Error: " + error.message;
       }
