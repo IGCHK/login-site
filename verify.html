@@ -1,10 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Verify Code</title>
+  <title>IGC HK Email Verification</title>
+  <style>
+    body {
+      background-color: #fdf6a6;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    input {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    .header img {
+      height: 100px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg">
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg">
+  </div>
+  <h2>Email Verification</h2>
+  <p>Enter the verification code sent to your email:</p>
+  <input type="text" id="codeInput" placeholder="Verification Code" />
+  <button onclick="verifyCode()">Verify</button>
+  <br><br>
+  <button onclick="window.location.href='index.html'">Return to Homepage</button>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -20,47 +48,26 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    async function verifyCode() {
-      const user = auth.currentUser;
+    onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        alert("Please log in first.");
-        return;
+        alert("You need to log in first.");
+        window.location.href = "index.html";
       }
 
-      const inputCode = document.getElementById("code").value;
-      const docRef = doc(db, "verifications", user.uid);
-      const docSnap = await getDoc(docRef);
+      window.verifyCode = async function () {
+        const enteredCode = document.getElementById("codeInput").value;
+        const docRef = doc(db, "verifications", user.uid);
+        const docSnap = await getDoc(docRef);
 
-      if (docSnap.exists()) {
-        const storedCode = docSnap.data().code;
-        if (storedCode === inputCode) {
+        if (docSnap.exists() && docSnap.data().code === enteredCode) {
           await updateDoc(docRef, { verified: true });
-          alert("Email verified! Redirecting...");
+          alert("Email verified successfully!");
           window.location.href = "dashboard.html";
         } else {
-          alert("Incorrect code.");
+          alert("Incorrect verification code.");
         }
-      } else {
-        alert("Verification data not found.");
-      }
-    }
-
-    window.verifyCode = verifyCode;
+      };
+    });
   </script>
-  <style>
-    body { background-color: #fdf6a6; text-align: center; font-family: Arial; }
-    input, button { margin: 10px; padding: 10px; font-size: 16px; }
-    .header-images img { height: 100px; margin: 10px; }
-  </style>
-</head>
-<body>
-  <div class="header-images">
-    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg">
-    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg">
-  </div>
-  <h2>Enter Verification Code</h2>
-  <input type="text" id="code" placeholder="Enter 6-digit code"><br>
-  <button onclick="verifyCode()">Verify</button><br>
-  <button onclick="window.location.href='index.html'">Return to Homepage</button>
 </body>
 </html>
