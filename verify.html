@@ -1,136 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>IGC HK Verify</title>
+  <title>IGC HK Email Verification</title>
   <style>
     body {
       background-color: #fdf6a6;
       font-family: Arial, sans-serif;
-      max-width: 400px;
-      margin: 40px auto;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 12px #ccc;
       text-align: center;
     }
-    img.logo, img.banner {
-      display: block;
-      margin: 0 auto 15px;
-      max-width: 100%;
-      height: 80px; /* same height */
-      object-fit: contain;
-    }
-    img.banner {
-      height: 80px;
-      margin-bottom: 30px;
-    }
-    label {
-      display: block;
-      margin: 12px 0 5px;
-      text-align: left;
-    }
-    input[type="text"] {
-      width: 100%;
-      padding: 8px;
-      font-size: 1em;
-      border-radius: 5px;
-      border: 1px solid #aaa;
-    }
-    button {
-      margin-top: 20px;
-      width: 100%;
+    input {
+      margin: 10px;
       padding: 10px;
-      font-size: 1.1em;
-      border-radius: 5px;
-      border: none;
-      background-color: #2e8b57;
-      color: white;
-      cursor: pointer;
+      font-size: 16px;
     }
-    button:hover {
-      background-color: #246b45;
-    }
-    .message {
-      margin-top: 15px;
-      color: red;
-      font-weight: bold;
-    }
-    .return-home {
-      margin-top: 25px;
-    }
-    .return-home button {
-      background-color: #555;
-    }
-    .return-home button:hover {
-      background-color: #333;
+    .header img {
+      height: 100px;
     }
   </style>
 </head>
 <body>
-
-  <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg" alt="IGC HK Logo" class="logo" />
-  <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg" alt="IGC HK Banner" class="banner" />
-
-  <h1>Verify Your Email</h1>
-  <p>Please enter the verification code sent to your email.</p>
-
-  <label for="code">Verification Code:</label>
-  <input type="text" id="code" maxlength="6" />
-
-  <button onclick="verifyCode()">Verify</button>
-
-  <div class="message" id="message"></div>
-
-  <div class="return-home">
-    <button onclick="goHome()">Return to Homepage</button>
+  <div class="header">
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg">
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg">
   </div>
+  <h2>Email Verification</h2>
+  <p>Enter the verification code sent to your email:</p>
+  <input type="text" id="codeInput" placeholder="Verification Code" />
+  <button onclick="verifyCode()">Verify</button>
+  <br><br>
+  <button onclick="window.location.href='index.html'">Return to Homepage</button>
 
-<script>
-  // For demo, we store the verification code temporarily in localStorage
-  // In a real app, verify on server side with DB
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore.js";
 
-  function getQueryParam(param) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(param);
-  }
+    const firebaseConfig = {
+      apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
+      authDomain: "igchkwebsite.firebaseapp.com",
+      projectId: "igchkwebsite",
+      storageBucket: "igchkwebsite.appspot.com",
+      messagingSenderId: "575146782620",
+      appId: "1:575146782620:web:36853d54456714d5d6e259"
+    };
 
-  const email = getQueryParam('email');
-  // For demo purposes: retrieve verification code from signup page console and store here
-  // In real, you would have backend validation with DB
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  async function verifyCode() {
-    const messageEl = document.getElementById("message");
-    messageEl.style.color = "red";
-    messageEl.textContent = "";
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        alert("You need to log in first.");
+        window.location.href = "index.html";
+      }
 
-    const enteredCode = document.getElementById("code").value.trim();
+      window.verifyCode = async function () {
+        const enteredCode = document.getElementById("codeInput").value;
+        const docRef = doc(db, "verifications", user.uid);
+        const docSnap = await getDoc(docRef);
 
-    if (!enteredCode) {
-      messageEl.textContent = "Please enter the verification code.";
-      return;
-    }
-
-    // In real app: call backend API to verify code for this email
-    // Here just simulate success if entered code matches stored code in localStorage
-
-    // For demo, ask user to input correct code from signup email console log
-    alert("In this demo, the verification code is the one you got in your signup console log.");
-
-    // Accept any 6 digit code for demo purposes
-    if (enteredCode.length === 6 && /^\d{6}$/.test(enteredCode)) {
-      messageEl.style.color = "green";
-      messageEl.textContent = "Email verified successfully! You can now sign in.";
-    } else {
-      messageEl.textContent = "Invalid verification code.";
-    }
-  }
-
-  function goHome() {
-    window.location.href = "index.html"; // change to your homepage
-  }
-</script>
-
+        if (docSnap.exists() && docSnap.data().code === enteredCode) {
+          await updateDoc(docRef, { verified: true });
+          alert("Email verified successfully!");
+          window.location.href = "dashboard.html";
+        } else {
+          alert("Incorrect verification code.");
+        }
+      };
+    });
+  </script>
 </body>
 </html>
