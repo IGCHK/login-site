@@ -15,25 +15,94 @@
     }
     .header img {
       height: 100px;
+      margin: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <div class="header">
-    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg">
-    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg">
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg" alt="Logo">
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg" alt="Banner">
   </div>
+
   <h2>IGC HK Sign Up</h2>
-  <input type="email" id="email" placeholder="Email" /><br>
-  <input type="password" id="password" placeholder="Password" /><br>
-  <button onclick="signUp()">Sign Up</button>
+
+  <input type="email" id="email" placeholder="Email" required /><br>
+  <input type="password" id="password" placeholder="Password" required /><br>
+  <button id="signupBtn">Sign Up</button><br><br>
+  <a href="index.html">Already have an account? Sign in here</a>
 
   <script type="module">
+    // Firebase SDKs
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
     import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore.js";
 
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
       authDomain: "igchkwebsite.firebaseapp.com",
-      projectId: "ig
+      projectId: "igchkwebsite",
+      storageBucket: "igchkwebsite.appspot.com",
+      messagingSenderId: "575146782620",
+      appId: "1:575146782620:web:36853d54456714d5d6e259"
+    };
+
+    // Init Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    async function signUp() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!email || !password) {
+        alert("Please enter both email and password.");
+        return;
+      }
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Generate verification code
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Save to Firestore
+        await setDoc(doc(db, "verifications", user.uid), {
+          verified: false,
+          code: code,
+          email: email
+        });
+
+        // Send to Cloudflare Worker (Resend API)
+        const response = await fetch("https://login.igchkshopmanagement.workers.dev/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, code })
+        });
+
+        const result = await response.json();
+        console.log("Email sent:", result);
+
+        alert("Sign up successful! Please check your inbox for a verification code (check your spam too).");
+        window.location.href = "verify.html";
+
+      } catch (error) {
+        console.error("Signup Error:", error);
+        alert("Error during sign up: " + error.message);
+      }
+    }
+
+    document.getElementById("signupBtn").addEventListener("click", signUp);
+  </script>
+</body>
+</html>
