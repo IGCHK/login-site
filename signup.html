@@ -1,53 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>IGC HK Sign Up</title>
-  <style>
-    body {
-      background-color: #fdf6a6;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-    }
-    .header-images {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-      gap: 20px;
-    }
-    img.logo, img.banner {
-      height: 120px;
-      width: auto;
-      vertical-align: middle;
-    }
-    h1 {
-      color: #333;
-      margin-bottom: 20px;
-    }
-    form {
-      background-color: white;
-      padding: 20px;
-      border-radius: 8px;
-      display: inline-block;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-    input, button {
-      margin: 8px 0;
-      padding: 10px;
-      width: 250px;
-    }
-  </style>
+  <title>Sign Up</title>
 </head>
 <body>
-
-  <div class="header-images">
-    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg" alt="IGC HK Logo" class="logo">
-    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg" alt="IGC HK Banner" class="banner">
-  </div>
-
-  <h1>IGC HK Sign Up</h1>
-
+  <h1>Sign Up</h1>
   <form id="signup-form">
     <input type="email" id="email" placeholder="Email" required><br>
     <input type="password" id="password" placeholder="Password (min 6 chars)" required><br>
@@ -84,8 +41,8 @@
         const user = userCredential.user;
 
         await sendEmailVerification(user);
-        alert("Signup successful! Please check your inbox to verify your email. ⚠️ Also check your SPAM or JUNK folder.");
-        window.location.href = "verify.html";
+        alert("Signup successful! A verification email has been sent. Please verify your email before logging in.");
+        window.location.href = "index.html";
       } catch (error) {
         document.getElementById('error-message').textContent = "Error: " + error.message;
       }
