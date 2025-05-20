@@ -1,41 +1,66 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Email Verification</title>
+  <title>Verify Code</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
+      authDomain: "igchkwebsite.firebaseapp.com",
+      projectId: "igchkwebsite",
+      storageBucket: "igchkwebsite.appspot.com",
+      messagingSenderId: "575146782620",
+      appId: "1:575146782620:web:36853d54456714d5d6e259"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    async function verifyCode() {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("Please log in first.");
+        return;
+      }
+
+      const inputCode = document.getElementById("code").value;
+      const docRef = doc(db, "verifications", user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const storedCode = docSnap.data().code;
+        if (storedCode === inputCode) {
+          await updateDoc(docRef, { verified: true });
+          alert("Email verified! Redirecting...");
+          window.location.href = "dashboard.html";
+        } else {
+          alert("Incorrect code.");
+        }
+      } else {
+        alert("Verification data not found.");
+      }
+    }
+
+    window.verifyCode = verifyCode;
+  </script>
   <style>
-    body {
-      background-color: #fdf6a6;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-    }
-    .header-images {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-      gap: 20px;
-    }
-    img.logo, img.banner {
-      height: 120px;
-      width: auto;
-      vertical-align: middle;
-    }
-    form {
-      background-color: white;
-      padding: 20px;
-      border-radius: 8px;
-      display: inline-block;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-    input, button {
-      margin: 8px 0;
-      padding: 10px;
-      width: 250px;
-    }
+    body { background-color: #fdf6a6; text-align: center; font-family: Arial; }
+    input, button { margin: 10px; padding: 10px; font-size: 16px; }
+    .header-images img { height: 100px; margin: 10px; }
   </style>
 </head>
 <body>
-
   <div class="header-images">
-    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg">
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg">
+  </div>
+  <h2>Enter Verification Code</h2>
+  <input type="text" id="code" placeholder="Enter 6-digit code"><br>
+  <button onclick="verifyCode()">Verify</button><br>
+  <button onclick="window.location.href='index.html'">Return to Homepage</button>
+</body>
+</html>
