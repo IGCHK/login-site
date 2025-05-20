@@ -39,7 +39,7 @@
         });
 
         // Send email via Cloudflare Worker
-        await fetch("https://your-cloudflare-worker-url/send", {
+        await fetch("https://login.igchkshopmanagement.workers.dev/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: user.email, code })
