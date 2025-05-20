@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Login Page</title>
+  <title>Login</title>
 </head>
 <body>
   <h1>Login</h1>
@@ -12,13 +12,12 @@
   </form>
 
   <p id="error-message" style="color:red;"></p>
+  <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
 
   <script type="module">
-    // ✅ Use Firebase's CDN-based import
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
 
-    // ✅ Your Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
       authDomain: "igchkwebsite.firebaseapp.com",
@@ -29,11 +28,9 @@
       measurementId: "G-V5EFJP1WYJ"
     };
 
-    // ✅ Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // ✅ Handle login
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('email').value;
@@ -41,11 +38,17 @@
 
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        // ✅ Login success
+        const user = userCredential.user;
+
+        if (!user.emailVerified) {
+          alert("Please verify your email before logging in.");
+          return;
+        }
+
+        alert("Login successful!");
         window.location.href = "dashboard.html";
       } catch (error) {
-        // ❌ Login failed
-        document.getElementById('error-message').textContent = "Login failed: " + error.message;
+        document.getElementById('error-message').textContent = "Error: " + error.message;
       }
     });
   </script>
