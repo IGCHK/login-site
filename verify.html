@@ -1,73 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>IGC HK Email Verification</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IGC HK Verify</title>
   <style>
     body {
       background-color: #fdf6a6;
       font-family: Arial, sans-serif;
+      max-width: 400px;
+      margin: 40px auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 12px #ccc;
       text-align: center;
     }
-    input {
-      margin: 10px;
-      padding: 10px;
-      font-size: 16px;
+    img.logo, img.banner {
+      display: block;
+      margin: 0 auto 15px;
+      max-width: 100%;
+      height: 80px; /* same height */
+      object-fit: contain;
     }
-    .header img {
-      height: 100px;
+    img.banner {
+      height: 80px;
+      margin-bottom: 30px;
+    }
+    label {
+      display: block;
+      margin: 12px 0 5px;
+      text-align: left;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-size: 1em;
+      border-radius: 5px;
+      border: 1px solid #aaa;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      font-size: 1.1em;
+      border-radius: 5px;
+      border: none;
+      background-color: #2e8b57;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #246b45;
+    }
+    .message {
+      margin-top: 15px;
+      color: red;
+      font-weight: bold;
+    }
+    .return-home {
+      margin-top: 25px;
+    }
+    .return-home button {
+      background-color: #555;
+    }
+    .return-home button:hover {
+      background-color: #333;
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg">
-    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg">
-  </div>
-  <h2>Email Verification</h2>
-  <p>Enter the verification code sent to your email:</p>
-  <input type="text" id="codeInput" placeholder="Verification Code" />
-  <button onclick="verifyCode()">Verify</button>
-  <br><br>
-  <button onclick="window.location.href='index.html'">Return to Homepage</button>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
-      authDomain: "igchkwebsite.firebaseapp.com",
-      projectId: "igchkwebsite",
-      storageBucket: "igchkwebsite.appspot.com",
-      messagingSenderId: "575146782620",
-      appId: "1:575146782620:web:36853d54456714d5d6e259"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        alert("You need to log in first.");
-        window.location.href = "index.html";
-      }
-
-      window.verifyCode = async function () {
-        const enteredCode = document.getElementById("codeInput").value;
-        const docRef = doc(db, "verifications", user.uid);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists() && docSnap.data().code === enteredCode) {
-          await updateDoc(docRef, { verified: true });
-          alert("Email verified successfully!");
-          window.location.href = "dashboard.html";
-        } else {
-          alert("Incorrect verification code.");
-        }
-      };
-    });
-  </script>
-</body>
-</html>
+  <img src="https://web.
