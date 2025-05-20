@@ -1,12 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Dashboard</title>
+  <title>IGC HK Dashboard</title>
+  <style>
+    body {
+      background-color: #fdf6a6;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    img.logo {
+      width: 120px;
+      margin-bottom: 10px;
+    }
+    img.banner {
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+    }
+    #main-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      display: inline-block;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  </style>
 </head>
 <body>
-  <h1 id="welcome-message"></h1>
+
+  <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg" alt="IGC HK Logo" class="logo">
+  <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg" alt="IGC HK Banner" class="banner">
+  <h1>Welcome to Your Dashboard</h1>
+
   <div id="main-content" style="display: none;">
-    <p>This is your protected content. Only logged-in and verified users can see this!</p>
+    <p id="welcome-message"></p>
+    <p>This is your secure dashboard. Verified users only!</p>
     <button id="logout-button">Logout</button>
   </div>
 
@@ -28,15 +58,11 @@
     const auth = getAuth(app);
 
     onAuthStateChanged(auth, (user) => {
-      if (user) {
-        if (!user.emailVerified) {
-          alert("Please verify your email first.");
-          window.location.href = "index.html";
-        } else {
-          document.getElementById('welcome-message').textContent = `Welcome, ${user.email}`;
-          document.getElementById('main-content').style.display = "block";
-        }
+      if (user && user.emailVerified) {
+        document.getElementById('welcome-message').textContent = `Hello, ${user.email}`;
+        document.getElementById('main-content').style.display = "block";
       } else {
+        alert("You must verify your email to access the dashboard.");
         window.location.href = "index.html";
       }
     });
