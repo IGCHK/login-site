@@ -2,94 +2,74 @@
 <html>
 <head>
   <title>IGC HK Sign Up</title>
-  <style>
-    body {
-      background-color: #fdf6a6;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-    }
-    .header-images {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-      gap: 20px;
-    }
-    img.logo, img.banner {
-      height: 120px;
-      width: auto;
-      vertical-align: middle;
-    }
-    h1 {
-      color: #333;
-      margin-bottom: 20px;
-    }
-    form {
-      background-color: white;
-      padding: 20px;
-      border-radius: 8px;
-      display: inline-block;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-    input, button {
-      margin: 8px 0;
-      padding: 10px;
-      width: 250px;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="header-images">
-    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg" alt="IGC HK Logo" class="logo">
-    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg" alt="IGC HK Banner" class="banner">
-  </div>
-
-  <h1>IGC HK Sign Up</h1>
-
-  <form id="signup-form">
-    <input type="email" id="email" placeholder="Email" required><br>
-    <input type="password" id="password" placeholder="Password (min 6 chars)" required><br>
-    <button type="submit">Create Account</button>
-  </form>
-
-  <p id="error-message" style="color:red;"></p>
-  <p>Already have an account? <a href="index.html">Login here</a></p>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
       authDomain: "igchkwebsite.firebaseapp.com",
       projectId: "igchkwebsite",
-      storageBucket: "igchkwebsite.firebasestorage.app",
+      storageBucket: "igchkwebsite.appspot.com",
       messagingSenderId: "575146782620",
-      appId: "1:575146782620:web:36853d54456714d5d6e259",
-      measurementId: "G-V5EFJP1WYJ"
+      appId: "1:575146782620:web:36853d54456714d5d6e259"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    document.getElementById('signup-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+    async function signUp() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
 
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        await sendEmailVerification(user);
-        alert("Signup successful! Please check your inbox to verify your email. ⚠️ Also check your SPAM or JUNK folder.");
+        // Generate 6-digit code
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Save code to Firestore
+        await setDoc(doc(db, "verifications", user.uid), {
+          email: user.email,
+          code: code,
+          verified: false
+        });
+
+        // Send email via Cloudflare Worker
+        await fetch("https://your-cloudflare-worker-url/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: user.email, code })
+        });
+
+        alert("Sign up successful! Please check your email for the verification code (check spam too).");
         window.location.href = "verify.html";
       } catch (error) {
-        document.getElementById('error-message').textContent = "Error: " + error.message;
+        alert("Error: " + error.message);
       }
-    });
+    }
+
+    window.signUp = signUp;
   </script>
+
+  <style>
+    body { background-color: #fdf6a6; text-align: center; font-family: Arial; }
+    input { margin: 5px; padding: 10px; font-size: 16px; }
+    button { padding: 10px 20px; font-size: 16px; margin-top: 10px; }
+    .header-images img { height: 100px; margin: 10px; }
+  </style>
+</head>
+<body>
+  <div class="header-images">
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg">
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg">
+  </div>
+  <h2>IGC HK Sign Up</h2>
+  <input type="email" id="email" placeholder="Email"><br>
+  <input type="password" id="password" placeholder="Password"><br>
+  <button onclick="signUp()">Sign Up</button>
 </body>
 </html>
