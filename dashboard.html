@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>IGC HK Dashboard</title>
+  <title>Dashboard</title>
   <style>
     body {
       background-color: #fdf6a6;
@@ -9,69 +9,32 @@
       text-align: center;
       padding: 20px;
     }
-    img.logo {
-      width: 120px;
-      margin-bottom: 10px;
-    }
-    img.banner {
-      width: 100%;
-      max-width: 600px;
+    .header-images {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       margin-bottom: 20px;
-      border-radius: 10px;
+      gap: 20px;
     }
-    #main-content {
-      background-color: white;
-      padding: 20px;
-      border-radius: 8px;
-      display: inline-block;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    img.logo, img.banner {
+      height: 120px;
+      width: auto;
+      vertical-align: middle;
+    }
+    h1 {
+      color: #333;
     }
   </style>
 </head>
 <body>
 
-  <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg" alt="IGC HK Logo" class="logo">
-  <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg" alt="IGC HK Banner" class="banner">
-  <h1>Welcome to Your Dashboard</h1>
-
-  <div id="main-content" style="display: none;">
-    <p id="welcome-message"></p>
-    <p>This is your secure dashboard. Verified users only!</p>
-    <button id="logout-button">Logout</button>
+  <div class="header-images">
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg" alt="IGC HK Logo" class="logo">
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg" alt="IGC HK Banner" class="banner">
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
+  <h1>Welcome to IGC HK Dashboard</h1>
+  <p>This is where your protected content will go!</p>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
-      authDomain: "igchkwebsite.firebaseapp.com",
-      projectId: "igchkwebsite",
-      storageBucket: "igchkwebsite.firebasestorage.app",
-      messagingSenderId: "575146782620",
-      appId: "1:575146782620:web:36853d54456714d5d6e259",
-      measurementId: "G-V5EFJP1WYJ"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    onAuthStateChanged(auth, (user) => {
-      if (user && user.emailVerified) {
-        document.getElementById('welcome-message').textContent = `Hello, ${user.email}`;
-        document.getElementById('main-content').style.display = "block";
-      } else {
-        alert("You must verify your email to access the dashboard.");
-        window.location.href = "index.html";
-      }
-    });
-
-    document.getElementById("logout-button").addEventListener("click", () => {
-      signOut(auth).then(() => {
-        window.location.href = "index.html";
-      });
-    });
-  </script>
 </body>
 </html>
