@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Dashboard</title>
+</head>
+<body>
+  <h1>Welcome to your dashboard</h1>
+  <div id="user-info"></div>
+  <button id="logout">Logout</button>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
+      authDomain: "igchkwebsite.firebaseapp.com",
+      projectId: "igchkwebsite",
+      storageBucket: "igchkwebsite.firebasestorage.app",
+      messagingSenderId: "575146782620",
+      appId: "1:575146782620:web:36853d54456714d5d6e259",
+      measurementId: "G-V5EFJP1WYJ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById('user-info').textContent = `You are logged in as ${user.email}`;
+      } else {
+        window.location.href = "index.html"; // Not logged in, redirect
+      }
+    });
+
+    document.getElementById('logout').addEventListener('click', () => {
+      signOut(auth).then(() => {
+        window.location.href = "index.html";
+      });
+    });
+  </script>
+</body>
+</html>
