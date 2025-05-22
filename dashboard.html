@@ -1,77 +1,53 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Dashboard</title>
-  <style>
-    body {
-      background-color: #fdf6a6;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-    }
-    .header-images {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-      gap: 20px;
-    }
-    img.logo, img.banner {
-      height: 120px;
-      width: auto;
-      vertical-align: middle;
-    }
-    h1 {
-      color: #333;
-    }
-    #greeting {
-      font-size: 20px;
-      margin-top: 10px;
-      color: #555;
-    }
-  </style>
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js" type="module"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js" type="module"></script>
-</head>
-<body>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
 
-  <div class="header-images">
-    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg" alt="IGC HK Logo" class="logo">
-    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg" alt="IGC HK Banner" class="banner">
-  </div>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
+    authDomain: "igchkwebsite.firebaseapp.com",
+    projectId: "igchkwebsite",
+    storageBucket: "igchkwebsite.appspot.com",
+    messagingSenderId: "575146782620",
+    appId: "1:575146782620:web:36853d54456714d5d6e259"
+  };
 
-  <h1>Welcome to IGC HK Dashboard</h1>
-  <p id="greeting">Checking login status...</p>
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
+  const greetingEl = document.getElementById("greeting");
+  const fileList = document.createElement("ul");
+  document.body.appendChild(fileList);
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
-      authDomain: "igchkwebsite.firebaseapp.com",
-      projectId: "igchkwebsite",
-      storageBucket: "igchkwebsite.appspot.com",
-      messagingSenderId: "575146782620",
-      appId: "1:575146782620:web:36853d54456714d5d6e259"
-    };
+  onAuthStateChanged(auth, async (user) => {
+    if (user && user.emailVerified) {
+      greetingEl.textContent = `Hi ${user.email}!`;
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+      try {
+        const res = await fetch("https://web.igchkshop.dpdns.org/files.json");
+        const data = await res.json();
+        const currentUser = data.users.find(u => u.email === user.email);
 
-    const greetingEl = document.getElementById("greeting");
+        if (currentUser && currentUser.files.length > 0) {
+          currentUser.files.forEach(file => {
+            const li = document.createElement("li");
+            const link = document.createElement("a");
+            link.href = file.url;
+            link.textContent = file.label;
+            link.target = "_blank";
+            li.appendChild(link);
+            fileList.appendChild(li);
+          });
+        } else {
+          fileList.innerHTML = "<li>No files assigned to your account.</li>";
+        }
 
-    onAuthStateChanged(auth, (user) => {
-      if (user && user.emailVerified) {
-        greetingEl.textContent = `Hi ${user.email}!`;
-      } else {
-        // Redirect to sign-in page (index.html)
-        window.location.href = "index.html";
+      } catch (err) {
+        fileList.innerHTML = "<li>Error loading files.</li>";
+        console.error("Error fetching file list:", err);
       }
-    });
-  </script>
 
-</body>
-</html>
-
+    } else {
+      window.location.href = "index.html";
+    }
+  });
+</script>
