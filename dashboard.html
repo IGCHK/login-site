@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Dashboard</title>
+  <title>User Dashboard</title>
   <style>
     body {
       background-color: #fdf6a6;
@@ -10,32 +10,26 @@
       padding: 20px;
     }
     .header-images {
-      display: inline-flex;
-      align-items: center;
+      display: flex;
       justify-content: center;
-      margin-bottom: 20px;
       gap: 20px;
+      margin-bottom: 20px;
     }
     img.logo, img.banner {
       height: 120px;
       width: auto;
-      vertical-align: middle;
-    }
-    h1 {
-      color: #333;
-    }
-    #greeting {
-      font-size: 20px;
-      margin-top: 10px;
-      color: #555;
     }
     #assigned-url {
-      margin: 20px auto;
-      padding: 20px;
       background: white;
+      padding: 20px;
       border-radius: 8px;
       max-width: 600px;
+      margin: 20px auto;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    #url-display {
+      margin: 15px 0;
+      font-size: 18px;
     }
     #logout-btn {
       padding: 10px 20px;
@@ -50,16 +44,16 @@
 </head>
 <body>
   <div class="header-images">
-    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg" alt="IGC HK Logo" class="logo">
-    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg" alt="IGC HK Banner" class="banner">
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg" alt="Logo" class="logo">
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg" alt="Banner" class="banner">
   </div>
 
-  <h1>Welcome to IGC HK Dashboard</h1>
-  <p id="greeting">Loading...</p>
+  <h1>Welcome to Your Dashboard</h1>
+  <div id="greeting">Loading your account...</div>
   
   <div id="assigned-url">
     <h2>Your Assigned Resource</h2>
-    <div id="url-display" style="margin: 15px 0; font-size: 18px;"></div>
+    <div id="url-display">Checking for assigned content...</div>
   </div>
 
   <button id="logout-btn">Logout</button>
@@ -69,7 +63,7 @@
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore.js";
 
-    // Firebase configuration
+    // User Project (igchkwebsite)
     const firebaseConfig = {
       apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
       authDomain: "igchkwebsite.firebaseapp.com",
@@ -79,7 +73,6 @@
       appId: "1:575146782620:web:36853d54456714d5d6e259"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
@@ -89,27 +82,29 @@
     const urlDisplay = document.getElementById("url-display");
     const logoutBtn = document.getElementById("logout-btn");
 
-    // Check authentication state
+    // Check auth state
     onAuthStateChanged(auth, async (user) => {
-      if (user && user.emailVerified) {
-        greetingEl.textContent = `Welcome, ${user.email}`;
+      if (user) {
+        greetingEl.textContent = `Hello, ${user.email}`;
         
-        // Fetch assigned URL from Firestore
+        // Get assigned URL from Firestore
         try {
           const userDoc = await getDoc(doc(db, "userFiles", user.email));
           
-          if (userDoc.exists() && userDoc.data().fileUrl) {
+          if (userDoc.exists() && userDoc.data().url) {
             urlDisplay.innerHTML = `
-              <a href="${userDoc.data().fileUrl}" target="_blank" 
-                 style="color: #2196F3; text-decoration: none;">
-                ${userDoc.data().fileUrl}
+              <p>You have been assigned the following resource:</p>
+              <a href="${userDoc.data().url}" target="_blank" 
+                 style="color: #2196F3; text-decoration: none; font-weight: bold;">
+                ${userDoc.data().url}
               </a>
-              <p>Last updated: ${new Date(userDoc.data().lastUpdated?.toDate()).toLocaleString()}</p>
+              ${userDoc.data().lastUpdated ? 
+                `<p><small>Last updated: ${new Date(userDoc.data().lastUpdated.toDate()).toLocaleString()}</small></p>` : ''}
             `;
           } else {
             urlDisplay.innerHTML = `
               <p style="color: #f44336;">No resource assigned yet.</p>
-              <p>Please contact the administrator.</p>
+              <p>Please contact the administrator if you believe this is an error.</p>
             `;
           }
         } catch (error) {
@@ -119,12 +114,11 @@
           `;
         }
       } else {
-        // Redirect to login if not authenticated
         window.location.href = "index.html";
       }
     });
 
-    // Logout button
+    // Logout
     logoutBtn.addEventListener("click", async () => {
       try {
         await signOut(auth);
