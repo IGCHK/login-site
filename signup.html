@@ -1,72 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>IGC HK Sign Up</title>
+  <title>IGC HK Signup</title>
   <style>
     body {
       background-color: #fdf6a6;
       font-family: Arial, sans-serif;
       text-align: center;
+      padding: 40px;
     }
-    img {
-      max-height: 100px;
-    }
-    .container {
-      margin-top: 20px;
-    }
+    input { margin: 8px; padding: 8px; width: 250px; }
+    button { padding: 10px 20px; }
   </style>
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js" type="module"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js" type="module"></script>
 </head>
 <body>
-  <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg" />
-  <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg" />
-  <h1>IGC HK Sign Up</h1>
 
-  <div class="container">
-    <input type="email" id="email" placeholder="Email" /><br><br>
-    <input type="password" id="password" placeholder="Password" /><br><br>
-    <button onclick="signUp()">Sign Up</button>
-    <p id="message"></p>
-    <p>Already have an account? <a href="index.html">Sign in here</a></p>
-  </div>
+  <h1>IGC HK Signup</h1>
+  <input type="email" id="email" placeholder="Email" required><br>
+  <input type="password" id="password" placeholder="Password" required><br>
+  <button onclick="signUp()">Sign Up</button><br><br>
+  <p>Already have an account? <a href="index.html">Sign in here</a></p>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
-      authDomain: "igchkwebsite.firebaseapp.com",
-      projectId: "igchkwebsite",
-      storageBucket: "igchkwebsite.appspot.com",
-      messagingSenderId: "575146782620",
-      appId: "1:575146782620:web:36853d54456714d5d6e259"
+      apiKey: "AIzaSyAS5ssOie0tu6OUYWfMdagnt592DAESyJU",
+      authDomain: "igchkadmin.firebaseapp.com",
+      projectId: "igchkadmin",
+      storageBucket: "igchkadmin.firebasestorage.app",
+      messagingSenderId: "532987962673",
+      appId: "1:532987962673:web:1aaaf1499e1ac3d7547c10"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    window.signUp = function () {
+    async function addUserToFirestore(user) {
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        files: []
+      });
+    }
+
+    window.signUp = async function() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
-      const message = document.getElementById("message");
 
-      createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          sendEmailVerification(userCredential.user)
-            .then(() => {
-              message.textContent = "Signup successful! Please check your email (and spam folder) to verify your account.";
-            })
-            .catch((error) => {
-              message.textContent = "Signup successful, but email verification failed: " + error.message;
-            });
-        })
-        .catch((error) => {
-          message.textContent = "Error: " + error.message;
-        });
-    };
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        await addUserToFirestore(user);
+        await sendEmailVerification(user);
+
+        alert("Signup successful! Please check your email (including spam) to verify your account.");
+      } catch (error) {
+        alert("Error during sign up: " + error.message);
+      }
+    }
   </script>
+
 </body>
 </html>
