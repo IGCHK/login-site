@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Dashboard</title>
+  <title>IGC HK Login Page</title>
   <style>
     body {
       background-color: #fdf6a6;
@@ -21,57 +21,59 @@
       width: auto;
       vertical-align: middle;
     }
-    h1 {
-      color: #333;
-    }
-    #greeting {
-      font-size: 20px;
-      margin-top: 10px;
-      color: #555;
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
     }
   </style>
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js" type="module"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js" type="module"></script>
 </head>
 <body>
 
   <div class="header-images">
-    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg" alt="IGC HK Logo" class="logo">
-    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg" alt="IGC HK Banner" class="banner">
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg" class="logo" />
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg" class="banner" />
   </div>
 
-  <h1>Welcome to IGC HK Dashboard</h1>
-  <p id="greeting">Checking login status...</p>
+  <h1>Welcome to IGC HK Login Page</h1>
 
+  <input type="email" id="email" placeholder="Email"><br>
+  <input type="password" id="password" placeholder="Password"><br>
+  <button onclick="handleLogin()">Sign In</button>
+  <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
+
+  <!-- Firebase -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
+      apiKey: "AIzaSyAS5ssOie0tu6OUYWfMdagnt592DAESyJU",
       authDomain: "igchkwebsite.firebaseapp.com",
       projectId: "igchkwebsite",
       storageBucket: "igchkwebsite.appspot.com",
-      messagingSenderId: "575146782620",
-      appId: "1:575146782620:web:36853d54456714d5d6e259"
+      messagingSenderId: "325368318664",
+      appId: "1:325368318664:web:818e65c4b7f11b9a5e08d3"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    const greetingEl = document.getElementById("greeting");
+    window.handleLogin = function () {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
 
-    onAuthStateChanged(auth, (user) => {
-      if (user && user.emailVerified) {
-        greetingEl.textContent = `Hi ${user.email}!`;
-      } else {
-        // Redirect to sign-in page (index.html)
-        window.location.href = "index.html";
-      }
-    });
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          console.log("Login successful");
+          window.location.href = "dashboard.html";
+        })
+        .catch((error) => {
+          console.error("Login failed:", error);
+          alert("Login failed: " + error.message);
+        });
+    };
   </script>
 
 </body>
 </html>
-
