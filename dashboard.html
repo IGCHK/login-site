@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Dashboard</title>
+  <title>IGC HK Dashboard</title>
   <style>
     body {
       background-color: #fdf6a6;
@@ -24,10 +24,14 @@
     h1 {
       color: #333;
     }
-    .file-link {
-      margin-top: 20px;
-      font-size: 18px;
-      color: #0066cc;
+    #files a {
+      display: block;
+      margin: 8px 0;
+      color: #0073e6;
+      text-decoration: none;
+    }
+    #files a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -39,52 +43,69 @@
   </div>
 
   <h1>Welcome to IGC HK Dashboard</h1>
-  <p id="welcomeText">Checking login...</p>
-  <div id="fileArea"></div>
+  <p id="welcome">Loading user info...</p>
 
-  <!-- Firebase SDKs -->
+  <div id="files">
+    <!-- User file links will appear here -->
+  </div>
+
+  <button onclick="signOut()">Sign Out</button>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut as firebaseSignOut } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
-      authDomain: "igchkwebsite.firebaseapp.com",
-      projectId: "igchkwebsite",
-      storageBucket: "igchkwebsite.appspot.com",
-      messagingSenderId: "575146782620",
-      appId: "1:575146782620:web:36853d54456714d5d6e259"
+      apiKey: "AIzaSyAS5ssOie0tu6OUYWfMdagnt592DAESyJU",
+      authDomain: "igchkadmin.firebaseapp.com",
+      projectId: "igchkadmin",
+      storageBucket: "igchkadmin.firebasestorage.app",
+      messagingSenderId: "532987962673",
+      appId: "1:532987962673:web:1aaaf1499e1ac3d7547c10"
     };
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
     onAuthStateChanged(auth, async (user) => {
-      const welcomeText = document.getElementById("welcomeText");
-      const fileArea = document.getElementById("fileArea");
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
 
-      if (user) {
-        welcomeText.innerHTML = `Hi <strong>${user.email}</strong>`;
+      document.getElementById("welcome").textContent = `Hi ${user.email}`;
 
-        const fileDoc = await getDoc(doc(db, "userFiles", user.email));
-        if (fileDoc.exists()) {
-          const url = fileDoc.data().fileUrl;
-          fileArea.innerHTML = `
-            <div class="file-link">
-              <p>Your assigned file:</p>
-              <a href="${url}" target="_blank">${url}</a>
-            </div>
-          `;
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        const filesDiv = document.getElementById("files");
+        filesDiv.innerHTML = "";
+
+        if (userData.files && userData.files.length > 0) {
+          userData.files.forEach(file => {
+            const link = document.createElement("a");
+            link.href = file.url;
+            link.textContent = file.name;
+            link.target = "_blank";
+            filesDiv.appendChild(link);
+          });
         } else {
-          fileArea.innerHTML = `<p style="color:red;">No file assigned to your account yet. Please contact support.</p>`;
+          filesDiv.textContent = "No files assigned to you yet.";
         }
       } else {
-        welcomeText.innerHTML = "You are not logged in.";
-        fileArea.innerHTML = `<p>Please <a href="index.html">sign in here</a>.</p>`;
+        document.getElementById("files").textContent = "User data not found.";
       }
     });
+
+    window.signOut = function() {
+      firebaseSignOut(auth).then(() => {
+        window.location.href = "index.html";
+      });
+    };
   </script>
 
 </body>
