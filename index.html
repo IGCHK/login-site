@@ -1,45 +1,84 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>IGC HK Login</title>
+  <title>IGC HK Login Page</title>
   <style>
     body {
       background-color: #fdf6a6;
       font-family: Arial, sans-serif;
       text-align: center;
-      padding: 40px;
+      padding: 20px;
     }
-    input { margin: 8px; padding: 8px; width: 250px; }
-    button { padding: 10px 20px; }
+    /* Container for logo + banner side by side */
+    .header-images {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      gap: 20px;
+    }
+    img.logo, img.banner {
+      height: 120px;    /* same height */
+      width: auto;      /* keep aspect ratio */
+      vertical-align: middle;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    form {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      display: inline-block;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    input, button {
+      margin: 8px 0;
+      padding: 10px;
+      width: 250px;
+    }
   </style>
 </head>
 <body>
 
-  <h1>IGC HK Login</h1>
-  <input type="email" id="email" placeholder="Email" required><br>
-  <input type="password" id="password" placeholder="Password" required><br>
-  <button onclick="signIn()">Sign In</button><br><br>
+  <div class="header-images">
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Shop%20Logo.jpg" alt="IGC HK Logo" class="logo">
+    <img src="https://web.igchkshop.dpdns.org/IGC%20HK/IGC%20HK%20Banner.jpg" alt="IGC HK Banner" class="banner">
+  </div>
+
+  <h1>IGC HK Login Page</h1>
+
+  <form id="login-form">
+    <input type="email" id="email" placeholder="Email" required><br>
+    <input type="password" id="password" placeholder="Password" required><br>
+    <button type="submit">Login</button>
+  </form>
+
+  <p id="error-message" style="color:red;"></p>
   <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyAS5ssOie0tu6OUYWfMdagnt592DAESyJU",
-      authDomain: "igchkadmin.firebaseapp.com",
-      projectId: "igchkadmin",
-      storageBucket: "igchkadmin.firebasestorage.app",
-      messagingSenderId: "532987962673",
-      appId: "1:532987962673:web:1aaaf1499e1ac3d7547c10"
+      apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
+      authDomain: "igchkwebsite.firebaseapp.com",
+      projectId: "igchkwebsite",
+      storageBucket: "igchkwebsite.firebasestorage.app",
+      messagingSenderId: "575146782620",
+      appId: "1:575146782620:web:36853d54456714d5d6e259",
+      measurementId: "G-V5EFJP1WYJ"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    window.signIn = async function() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
 
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -47,23 +86,16 @@
 
         if (!user.emailVerified) {
           alert("Please verify your email before logging in.");
-          await auth.signOut();
           return;
         }
 
+        alert("Login successful!");
         window.location.href = "dashboard.html";
       } catch (error) {
-        alert("Login error: " + error.message);
-      }
-    };
-
-    // Redirect if already signed in
-    onAuthStateChanged(auth, (user) => {
-      if (user && user.emailVerified) {
-        window.location.href = "dashboard.html";
+        document.getElementById('error-message').textContent = "Error: " + error.message;
       }
     });
   </script>
-
 </body>
 </html>
+
