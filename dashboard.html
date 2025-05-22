@@ -24,15 +24,12 @@
     h1 {
       color: #333;
     }
-    #greeting {
-      font-size: 20px;
-      margin-top: 10px;
-      color: #555;
+    .file-link {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #0066cc;
     }
   </style>
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js" type="module"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js" type="module"></script>
 </head>
 <body>
 
@@ -42,11 +39,14 @@
   </div>
 
   <h1>Welcome to IGC HK Dashboard</h1>
-  <p id="greeting">Checking login status...</p>
+  <p id="welcomeText">Checking login...</p>
+  <div id="fileArea"></div>
 
+  <!-- Firebase SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
@@ -59,15 +59,30 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    const greetingEl = document.getElementById("greeting");
+    onAuthStateChanged(auth, async (user) => {
+      const welcomeText = document.getElementById("welcomeText");
+      const fileArea = document.getElementById("fileArea");
 
-    onAuthStateChanged(auth, (user) => {
-      if (user && user.emailVerified) {
-        greetingEl.textContent = `Hi ${user.email}!`;
+      if (user) {
+        welcomeText.innerHTML = `Hi <strong>${user.email}</strong>`;
+
+        const fileDoc = await getDoc(doc(db, "userFiles", user.email));
+        if (fileDoc.exists()) {
+          const url = fileDoc.data().fileUrl;
+          fileArea.innerHTML = `
+            <div class="file-link">
+              <p>Your assigned file:</p>
+              <a href="${url}" target="_blank">${url}</a>
+            </div>
+          `;
+        } else {
+          fileArea.innerHTML = `<p style="color:red;">No file assigned to your account yet. Please contact support.</p>`;
+        }
       } else {
-        // Redirect to sign-in page (index.html)
-        window.location.href = "index.html";
+        welcomeText.innerHTML = "You are not logged in.";
+        fileArea.innerHTML = `<p>Please <a href="index.html">sign in here</a>.</p>`;
       }
     });
   </script>
