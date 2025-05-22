@@ -30,12 +30,21 @@
       color: #555;
     }
     #assigned-url {
-      margin: 20px;
-      padding: 15px;
+      margin: 20px auto;
+      padding: 20px;
       background: white;
       border-radius: 8px;
-      display: inline-block;
+      max-width: 600px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    #logout-btn {
+      padding: 10px 20px;
+      background: #f44336;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -46,18 +55,21 @@
   </div>
 
   <h1>Welcome to IGC HK Dashboard</h1>
-  <p id="greeting">Checking login status...</p>
+  <p id="greeting">Loading...</p>
   
   <div id="assigned-url">
-    <h3>Your Assigned URL</h3>
-    <p id="url-display">Loading...</p>
+    <h2>Your Assigned Resource</h2>
+    <div id="url-display" style="margin: 15px 0; font-size: 18px;"></div>
   </div>
+
+  <button id="logout-btn">Logout</button>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore.js";
 
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
       authDomain: "igchkwebsite.firebaseapp.com",
@@ -67,26 +79,58 @@
       appId: "1:575146782620:web:36853d54456714d5d6e259"
     };
 
+    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    // DOM elements
     const greetingEl = document.getElementById("greeting");
     const urlDisplay = document.getElementById("url-display");
+    const logoutBtn = document.getElementById("logout-btn");
 
+    // Check authentication state
     onAuthStateChanged(auth, async (user) => {
       if (user && user.emailVerified) {
-        greetingEl.textContent = `Hi ${user.email}!`;
+        greetingEl.textContent = `Welcome, ${user.email}`;
         
-        // Get assigned URL from Firestore
-        const userDoc = await getDoc(doc(db, "userFiles", user.email));
-        if (userDoc.exists()) {
-          urlDisplay.innerHTML = `<a href="${userDoc.data().fileUrl}" target="_blank">${userDoc.data().fileUrl}</a>`;
-        } else {
-          urlDisplay.textContent = "No URL assigned yet. Please contact admin.";
+        // Fetch assigned URL from Firestore
+        try {
+          const userDoc = await getDoc(doc(db, "userFiles", user.email));
+          
+          if (userDoc.exists() && userDoc.data().fileUrl) {
+            urlDisplay.innerHTML = `
+              <a href="${userDoc.data().fileUrl}" target="_blank" 
+                 style="color: #2196F3; text-decoration: none;">
+                ${userDoc.data().fileUrl}
+              </a>
+              <p>Last updated: ${new Date(userDoc.data().lastUpdated?.toDate()).toLocaleString()}</p>
+            `;
+          } else {
+            urlDisplay.innerHTML = `
+              <p style="color: #f44336;">No resource assigned yet.</p>
+              <p>Please contact the administrator.</p>
+            `;
+          }
+        } catch (error) {
+          urlDisplay.innerHTML = `
+            <p style="color: #f44336;">Error loading your resource.</p>
+            <p>${error.message}</p>
+          `;
         }
       } else {
+        // Redirect to login if not authenticated
         window.location.href = "index.html";
+      }
+    });
+
+    // Logout button
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        window.location.href = "index.html";
+      } catch (error) {
+        alert("Logout failed: " + error.message);
       }
     });
   </script>
