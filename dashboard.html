@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>IGC HK Dashboard</title>
+  <title>Dashboard</title>
   <style>
     body {
       background-color: #fdf6a6;
@@ -24,16 +24,15 @@
     h1 {
       color: #333;
     }
-    #files a {
-      display: block;
-      margin: 8px 0;
-      color: #0073e6;
-      text-decoration: none;
-    }
-    #files a:hover {
-      text-decoration: underline;
+    #greeting {
+      font-size: 20px;
+      margin-top: 10px;
+      color: #555;
     }
   </style>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js" type="module"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js" type="module"></script>
 </head>
 <body>
 
@@ -43,70 +42,36 @@
   </div>
 
   <h1>Welcome to IGC HK Dashboard</h1>
-  <p id="welcome">Loading user info...</p>
-
-  <div id="files">
-    <!-- User file links will appear here -->
-  </div>
-
-  <button onclick="signOut()">Sign Out</button>
+  <p id="greeting">Checking login status...</p>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, signOut as firebaseSignOut } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-auth.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyAS5ssOie0tu6OUYWfMdagnt592DAESyJU",
-      authDomain: "igchkadmin.firebaseapp.com",
-      projectId: "igchkadmin",
-      storageBucket: "igchkadmin.firebasestorage.app",
-      messagingSenderId: "532987962673",
-      appId: "1:532987962673:web:1aaaf1499e1ac3d7547c10"
+      apiKey: "AIzaSyBL-biUfPdgOoJvqgpD-drdcCNVXERlJ6Y",
+      authDomain: "igchkwebsite.firebaseapp.com",
+      projectId: "igchkwebsite",
+      storageBucket: "igchkwebsite.appspot.com",
+      messagingSenderId: "575146782620",
+      appId: "1:575146782620:web:36853d54456714d5d6e259"
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
     const auth = getAuth(app);
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = "index.html";
-        return;
-      }
+    const greetingEl = document.getElementById("greeting");
 
-      document.getElementById("welcome").textContent = `Hi ${user.email}`;
-
-      const userDocRef = doc(db, "users", user.uid);
-      const userDocSnap = await getDoc(userDocRef);
-
-      if (userDocSnap.exists()) {
-        const userData = userDocSnap.data();
-        const filesDiv = document.getElementById("files");
-        filesDiv.innerHTML = "";
-
-        if (userData.files && userData.files.length > 0) {
-          userData.files.forEach(file => {
-            const link = document.createElement("a");
-            link.href = file.url;
-            link.textContent = file.name;
-            link.target = "_blank";
-            filesDiv.appendChild(link);
-          });
-        } else {
-          filesDiv.textContent = "No files assigned to you yet.";
-        }
+    onAuthStateChanged(auth, (user) => {
+      if (user && user.emailVerified) {
+        greetingEl.textContent = `Hi ${user.email}!`;
       } else {
-        document.getElementById("files").textContent = "User data not found.";
+        // Redirect to sign-in page (index.html)
+        window.location.href = "index.html";
       }
     });
-
-    window.signOut = function() {
-      firebaseSignOut(auth).then(() => {
-        window.location.href = "index.html";
-      });
-    };
   </script>
 
 </body>
 </html>
+
